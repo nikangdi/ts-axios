@@ -1,6 +1,7 @@
 //对请求头进行处理
 import { isPlainObject } from './util'
 function normalizeHeaderName(headers: any, normalizedName: 'Content-Type'): void {
+  //设置成为Content-Type
   if (!headers) {
     return
   }
@@ -14,8 +15,11 @@ function normalizeHeaderName(headers: any, normalizedName: 'Content-Type'): void
 
 export function processHeaders(headers: any, data: any): any {
   normalizeHeaderName(headers, 'Content-Type')
+
   //根据data是否为普通对象 进行判断
-  //data是普通对象，则需对data进行json处理，此时就要对header中的content-type进行处理
+  //data是普通对象，
+  //则需对data进行json处理，
+  //此时就要对header中的content-type进行处理
   if (isPlainObject(data)) {
     if (
       (headers && !headers['Content-Type']) ||

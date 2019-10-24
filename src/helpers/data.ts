@@ -1,5 +1,6 @@
 //对 config中的data进行处理
 import { isPlainObject } from './util'
+import { FORMERR } from 'dns'
 export function transformRequest(data: any): any {
   if (isPlainObject(data)) {
     return JSON.stringify(data)
@@ -20,4 +21,12 @@ export function transformResponse(data: any): any {
     }
     return data
   }
+}
+
+//深拷贝
+export function extend<T, U>(to: T, from: U): T & U {
+  for (const key in from) {
+    ;(to as T & U)[key] = from[key] as any
+  }
+  return to as T & U
 }

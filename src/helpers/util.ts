@@ -12,13 +12,14 @@ const toString = Object.prototype.toString
     问题  若这样声明函数，调用时会认为所传参数是一个any类型，不能直接向对象那样调用方法
     解决  使用类型保护，此时如下isdata为true的val就可以进行调用Date中的方法
 */
-export function isData(val: any): val is Date {
+export function isDate(val: any): val is Date {
   // return Object.prototype.toString.call(val)==='[object Date]'
   //进行优化，后面要不断用到Object.prototype.tostring.call()
   return toString.call(val) === '[object Date]'
 }
 // export function isObject(val:any):val is Object{
 //     return val !==null && typeof val ==='object'
+
 // }
 export function isPlainObject(val: any): val is Object {
   //普通对象的判断方法
