@@ -4,7 +4,7 @@ import { extend } from './helpers/data'
 
 function createInstance(): AxiosInstance {
   const context = new Axios() //只是在其中存放着那些属性方法进行调用
-  const instance = Axios.prototype.request.bind(context)
+  const instance = Axios.prototype.request.bind(context) //class中定义的方法都是在原型上的
   extend(instance, context)
   //返回的方法就是一个对象，
   //本身可以传参直接请求axios（）

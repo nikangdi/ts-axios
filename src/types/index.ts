@@ -2,6 +2,8 @@
  *项目中所有的公共的类型定义文件
  */
 
+//在做任何一部分在操作之前，都要先定义接口。
+
 //字符串字面量类型来定义method
 export type Method =
   | 'get'
@@ -65,6 +67,10 @@ export interface AxiosError extends Error {
 }
 
 export interface Axios {
+  interceptors: {
+    request: AxiosInterceptorManager<AxiosRequestConfig>
+    response: AxiosInterceptorManager<AxiosResponse>
+  }
   request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
   get<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
   delete<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
@@ -79,3 +85,16 @@ export interface AxiosInstance extends Axios {
   <T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
 }
 //就是axios（）直接请求，也可以axios.get()等请求
+
+//想定义use（），因为response和request都会用到use
+export interface AxiosInterceptorManager<T> {
+  use(resolved: ResolvedFn<T>, rejected?: RejectFn): number //返回这个拦截器的id
+  eject(id: number): void
+}
+export interface ResolvedFn<T> {
+  //request输入config输出config，response输出请求返回地promise
+  (val: T): T | Promise<T>
+}
+export interface RejectFn {
+  (error: any): any
+}
