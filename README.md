@@ -25,3 +25,21 @@ https://github.com/nikangdi/ts-axios.git
     
     
 
+
+
+
+
+
+function resolveURL(url:string):URLOrigin{
+  //********************************* */
+  //利用a节点来解析url地址
+  urlParseingNode.setAttribute('href',url)
+  const {protocol,host} = urlParseingNode
+  return{
+    protocol,
+    host
+  }
+}
+
+//第三方nprogress进度条效果
+

@@ -29,3 +29,28 @@ export function isPlainObject(val: any): val is Object {
   //这样只会通过普通的对象，像URLSearchParams这些就不包含在其中
   //比如formData 返回的是一个[object FormData]
 }
+
+export function deepMerge(...objs: any[]): any {
+  const result = Object.create(null)
+  objs.forEach(obj => {
+    if (obj) {
+      Object.keys(obj).forEach(key => {
+        const val = obj[key]
+        if (isPlainObject(val)) {
+          if (isPlainObject(result[key])) {
+            result[key] = deepMerge(result[key], val)
+          } else {
+            result[key] = deepMerge(val)
+          }
+        } else {
+          result[key] = val
+        }
+      })
+    }
+  })
+  return result
+}
+
+export function isFormData(val: any): val is FormData {
+  return typeof val !== 'undefined' && val instanceof FormData
+}

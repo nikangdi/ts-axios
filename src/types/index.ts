@@ -29,6 +29,17 @@ export interface AxiosRequestConfig {
   headers?: any
   responseType?: XMLHttpRequestResponseType //响应的数据类型
   timeout?: number //超时时间
+  transformRequest?: AxiosTransformer | AxiosTransformer[]
+  transformResponse?: AxiosTransformer | AxiosTransformer[]
+  cancelToken?: CancelToken
+  withCredenrials?: boolean
+  xsrfCookieName?: string
+  xsrfHeaderName?: string
+
+  onDownloadProgress?: (e: ProgressEvent) => void
+  onUploadProgress?: (e: ProgressEvent) => void
+
+  [propName: string]: any
 }
 
 // export interface AxiosResponse {
@@ -71,6 +82,7 @@ export interface Axios {
     request: AxiosInterceptorManager<AxiosRequestConfig>
     response: AxiosInterceptorManager<AxiosResponse>
   }
+  defaults: AxiosRequestConfig
   request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
   get<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
   delete<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
@@ -86,8 +98,17 @@ export interface AxiosInstance extends Axios {
 }
 //就是axios（）直接请求，也可以axios.get()等请求
 
-//想定义use（），因为response和request都会用到use
+export interface AxiosStatic extends AxiosInstance {
+  //实现interface（）合并config请求
+  //以及axios.create（）等功能
+  create(config?: AxiosRequestConfig): AxiosInstance
+  CancelToken: CancelTokenStatic
+  Cancel: CancelStatic
+  isCancel: (value: any) => boolean
+}
+
 export interface AxiosInterceptorManager<T> {
+  //想定义use（），因为response和request都会用到use
   use(resolved: ResolvedFn<T>, rejected?: RejectFn): number //返回这个拦截器的id
   eject(id: number): void
 }
@@ -97,4 +118,40 @@ export interface ResolvedFn<T> {
 }
 export interface RejectFn {
   (error: any): any
+}
+
+export interface AxiosTransformer {
+  (data: any, headers?: any): any
+}
+
+export interface CancelToken {
+  promise: Promise<Cancel>
+  // reason?:string
+  reason?: Cancel
+
+  throwIfRequested(): void
+}
+export interface Canceler {
+  (message?: string): void
+  //将取消原因传给reason
+}
+export interface CancelExecutor {
+  //CancelExecutor是一个方法，接收另一个方法，另一个方法传入message进行处理（如上Canceler）
+  (cancel: Canceler): void
+}
+
+export interface CancelTokenSource {
+  token: CancelToken
+  cancel: Canceler
+}
+export interface CancelTokenStatic {
+  new (executor: CancelExecutor): CancelToken
+  source(): CancelTokenSource
+}
+
+export interface Cancel {
+  message?: string
+}
+export interface CancelStatic {
+  new (message?: string): Cancel
 }

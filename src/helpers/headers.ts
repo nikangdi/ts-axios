@@ -1,5 +1,6 @@
 //对请求头进行处理
-import { isPlainObject } from './util'
+import { isPlainObject, deepMerge } from './util'
+import { Method } from '../types'
 function normalizeHeaderName(headers: any, normalizedName: 'Content-Type'): void {
   //设置成为Content-Type
   if (!headers) {
@@ -48,4 +49,28 @@ export function parseHeader(headers: string): any {
     }
     parsed[key] = val
   })
+}
+
+//headers由多级处理成一级
+export function flattenHeaders(headers: any, method: Method): any {
+  //原来深层的headers对象是这样的
+  // headers:{
+  //post，common这些都是从defaults中深拷贝过来的
+  //   post:{'content-type':'xxxx'}
+  //   get:{'content-type':'xxxx'}
+  //   common:{
+  //     accept:'xxxxx'
+  //   }
+  // }
+  //之所以传入method，是只能在当前请求的header中取出当前method的配置方式，其他的不要取
+
+  if (!headers) {
+    return headers
+  }
+  headers = deepMerge(headers.common, headers[method], headers)
+  const methodsToDelete = ['delete', 'get', 'put', 'post', 'options', 'head', 'patch', 'common']
+  methodsToDelete.forEach(method => {
+    delete headers[method]
+  })
+  return headers
 }
