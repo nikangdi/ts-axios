@@ -43,3 +43,42 @@ function resolveURL(url:string):URLOrigin{
 
 //第三方nprogress进度条效果
 
+
+
+
+浏览器端有atob()解开base64
+btoa()编成base64
+
+
+
+export function isAbsoluteURL(url:string):boolean{
+  //判断是否为绝对地址
+  return /(^[a-z][a-z\d\+\-\.]*:)?\/\//i.test(url)
+}
+
+
+
+ read(name: string): string | null {
+    //从cookie中取出对应name的值
+    const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'))
+    //开头或者分号为起始，
+    //0个或多个空格
+    //name
+    //非分号结尾
+    //最终匹配获得match[1]match[2]match[3]
+    return match ? decodeURIComponent(match[3]) : null
+  }
+
+
+
+
+  export function combineURL(baseURL:string,relativeURL:string):string{
+  //绝对地址和相对地址进行拼接
+  return relativeURL? baseURL.replace(/\/+$/,'')+'/'+relativeURL.replace(/^\/+/,''):baseURL
+
+}
+
+
+
+
+import dispatchRequest ,{transformURL}from './dispatchRequest'

@@ -7,7 +7,7 @@ import {
   ResolvedFn
 } from '../types'
 
-import dispatchRequest from './dispatchRequest'
+import dispatchRequest, { transformURL } from './dispatchRequest'
 import mergeConfig from './mergeConfig'
 
 import InterceptorManager from './interceptormanager' //引入类型
@@ -125,5 +125,10 @@ export default class Axios {
     config?: AxiosRequestConfig
   ): AxiosPromise {
     return this.request(Object.assign(config || {}, { method, url, data }))
+  }
+
+  getUri(config: AxiosRequestConfig): string {
+    config = mergeConfig(this.defaults, config)
+    return transformURL(config)
   }
 }

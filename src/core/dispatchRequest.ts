@@ -3,7 +3,7 @@
 //引入定义的数据类型
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import xhr from './xhr'
-import { buildURL } from '../helpers/url'
+import { buildURL, isAbsoluteURL, combineURL } from '../helpers/url'
 import { transformRequest } from '../helpers/data'
 import { processHeaders, flattenHeaders } from '../helpers/headers'
 import transform from './transform'
@@ -38,8 +38,8 @@ function processConfig(config: AxiosRequestConfig): void {
   config.headers = flattenHeaders(config.headers, config.method!)
 }
 
-function transformURL(config: AxiosRequestConfig): string {
-  const { url, params } = config
+export function transformURL(config: AxiosRequestConfig): string {
+  let { url, params, paramsSerializer, baseURL } = config
 
   //从新定义的config接口中 url不是必须在config中的
   //因为存在get（）请求等第一个参数传的就是url
@@ -47,7 +47,11 @@ function transformURL(config: AxiosRequestConfig): string {
   //此处给他加一个！
   //即 运行到此处可以确保 url存在,不为空
   //因为 接下来get等处理时会将 url，config等进行合并
-  return buildURL(url!, params)
+
+  if (baseURL && !isAbsoluteURL(url!)) {
+    url = combineURL(baseURL, url!)
+  }
+  return buildURL(url!, params, paramsSerializer)
 }
 // function transformRequestData(config: AxiosRequestConfig): any {
 //   return transformRequest(config.data)

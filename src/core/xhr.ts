@@ -21,7 +21,9 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       xsrfHeaderName,
       xsrfCookieName,
       onDownloadProgress,
-      onUploadProgress
+      onUploadProgress,
+      auth,
+      validateStatus
     } = config
     const request = new XMLHttpRequest()
 
@@ -119,6 +121,10 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
           headers[xsrfHeaderName] = xsrfValue
         }
       }
+      if (auth) {
+        //鉴权
+        headers['Authorization'] = 'Basic ' + btoa(auth.username + ':' + auth.password)
+      }
       Object.keys(headers).forEach(item => {
         //对headers中的每一项进行请求头设置
         if (data === null && headers[item].toLowerCase() === 'content-type') {
@@ -144,7 +150,8 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
     function handleResponse(response: AxiosResponse): void {
       //不在200-300之间de 状态码，即不成功的状态码，我们默认也是错误的
-      if (response.status >= 200 && response.status < 300) {
+      if (!validateStatus || validateStatus(response.status)) {
+        //若没有配置validateStatus时
         resolve(response)
       } else {
         reject(

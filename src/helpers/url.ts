@@ -1,4 +1,5 @@
-import { isDate, isPlainObject } from './util'
+import { isDate, isPlainObject, isURLSearchParams } from './util'
+
 interface URLOrigin {
   protocol: string
   host: string
@@ -18,36 +19,47 @@ export function encode(val: string): string {
   )
 }
 
-export function buildURL(url: string, params?: any): string {
+export function buildURL(
+  url: string,
+  params?: any,
+  paramsSerializer?: (params: any) => string
+): string {
   if (!params) {
     return url
   }
+  let paramsSerialize: string
   const parts: string[] = [] //存放每个的最终结果name=xiaoming
-  Object.keys(params).forEach(key => {
-    const val = params[key]
-    //值为undefined或者null的情况
-    if (val === null || typeof val === 'undefined') {
-      return //foreach中使用return只能跳出本级循环，进入下一次
-    }
-    let values = [] //将该key下所有的v值统计到values数组中
-    if (Array.isArray(val)) {
-      //数组的情况下对键名进行拼接加长 key+='[]'
-      values = val
-      key += '[]'
-    } else {
-      values = [val]
-    }
-    values.forEach(item => {
-      if (isDate(item)) {
-        item = item.toISOString()
-      } else if (isPlainObject(item)) {
-        item = JSON.stringify(item)
+  if (paramsSerializer) {
+    paramsSerialize = paramsSerializer(params)
+  } else if (isURLSearchParams(params)) {
+    paramsSerialize = params.toString()
+  } else {
+    Object.keys(params).forEach(key => {
+      const val = params[key]
+      //值为undefined或者null的情况
+      if (val === null || typeof val === 'undefined') {
+        return //foreach中使用return只能跳出本级循环，进入下一次
       }
-      //拼接key和处理后的values，即每段name=abc
-      parts.push(`${encode(key)}=${encode(item)}`)
+      let values = [] //将该key下所有的v值统计到values数组中
+      if (Array.isArray(val)) {
+        //数组的情况下对键名进行拼接加长 key+='[]'
+        values = val
+        key += '[]'
+      } else {
+        values = [val]
+      }
+      values.forEach(item => {
+        if (isDate(item)) {
+          item = item.toISOString()
+        } else if (isPlainObject(item)) {
+          item = JSON.stringify(item)
+        }
+        //拼接key和处理后的values，即每段name=abc
+        parts.push(`${encode(key)}=${encode(item)}`)
+      })
     })
-  })
-  let paramsSerialize: string = parts.join('&')
+    paramsSerialize = parts.join('&')
+  }
   if (paramsSerialize) {
     if (url.includes('#')) {
       let index = url.indexOf('#')
@@ -62,8 +74,17 @@ export function buildURL(url: string, params?: any): string {
   return url
 }
 
-//判断是否同源
+export function isAbsoluteURL(url: string): boolean {
+  //判断是否为绝对地址
+  return /(^[a-z][a-z\d\+\-\.]*:)?\/\//i.test(url)
+}
+export function combineURL(baseURL: string, relativeURL: string): string {
+  //绝对地址和相对地址进行拼接
+  return relativeURL ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '') : baseURL
+}
+
 export function isURLSameOrigin(requestURL: string): boolean {
+  //判断是否同源
   const parseOrigin = resolveURL(requestURL)
   return parseOrigin.protocol === currentOrigin.protocol && parseOrigin.host === currentOrigin.host
 }
