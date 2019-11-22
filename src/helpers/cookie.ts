@@ -8,6 +8,7 @@ const cookie = {
     //非分号结尾
     //最终匹配获得match[1]match[2]match[3]
     return match ? decodeURIComponent(match[3]) : null
+    //从cookie中取值，娶不到返回null
   }
 }
 
